@@ -1,4 +1,4 @@
-// Webhook simulation project using Node.js, Express, Socket.io
+// Package Tracker project using Node.js, Express, Socket.io
 
 const express = require('express');
 const http = require('http');
@@ -15,33 +15,39 @@ const io = socketIo(server);
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Webhook Receiver endpoint
-app.post('/webhook', (req, res) => {
-  const message = req.body.message;
-  if (!message || typeof message !== 'string') {
-    console.log('Invalid webhook payload:', req.body);
-    return res.status(400).json({ error: 'Invalid payload.' });
+// For now just going to store parcels in array
+let parcels = [];
+let parcelId = 0;
+
+// POST Endpoint to send a new parcel
+app.post('/parcel', (req, res) => {
+  const { recipient, destination } = req.body;
+  if (!recipient || !destination) {
+    return res.status(400).json({ error: 'All fields must be filled' });
   }
-  console.log('Webhook received:', message);
-  // Emit to user interface
-  io.emit('push-message', message);
-  res.sendStatus(200);
+
+  const parcel = {
+    id: parcelId, 
+    recipient: recipient,
+    destination: destination,
+    status: 'Created',
+    history: [{ status: 'Created', timestamp: new Date() }]
+  };
+
+  parcels.push(parcel);
+  parcelId++;
+
+  io.emit('push-message', `Parcel ID ${parcel.id} for ${parcel.recipient} sent`);
+  res.status(201).json(parcel);
 });
 
+// PATCH Endpoint to update parcel status
 
 
-// Webhook Sender endpoint
-app.get('/send-webhook/:msg', async (req, res) => {
-  const message = req.params.msg;
 
-  await fetch('http://localhost:3000/webhook', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message }),
-  });
 
-  res.send('Webhook sent');
-});
+
+
 
 
 
