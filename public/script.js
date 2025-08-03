@@ -28,14 +28,10 @@ parcelForm.addEventListener('submit', async (e) => {
   parcelForm.reset();
 });
 
-
-
-
-
-
 function addParcelCard(parcel) {
   const div = document.createElement('div');
   div.className = 'parcel-card';
+  div.dataset.id = parcel.id;
 
   div.innerHTML = `
     <p><strong>ID:</strong> ${parcel.id}</p>
@@ -49,19 +45,50 @@ function addParcelCard(parcel) {
       <option value="out_for_delivery">Out for Delivery</option>
       <option value="delivered">Delivered</option>
       <option value="delivery_failed">Delivery Failed</option>
-    </select>`
+    </select>
+  `;
 
+  const dropdown = div.querySelector('.status-dropdown');
+  dropdown.value = parcel.status;
+  dropdown.addEventListener('change', async () => {
+    const newStatus = dropdown.value;
 
-parcelList.prepend(div);
+    const res = await fetch(`/parcel/${parcel.id}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus })
+    });
+    const updated = await res.json();
 
-  const statusDropdown = div.querySelector('.status-dropdown');
-};
+    div.querySelector('.status-text').innerText = updated.status;
+
+  });
+
+  parcelList.prepend(div);
+}
 
 function addRecipientCard(parcel) {
+  const div = document.createElement('div');
+  div.className = 'recipient-card';
+  div.dataset.parcelId = parcel.id;
+
+  div.innerHTML = `
+    <h4>${parcel.recipient} (Parcel ID: ${parcel.id})</h4>
+    <div class="status-log"></div>
+  `;
+
+  recipientGrid.prepend(div);
+}
+
+function addMessageToRecipientCard(parcelId, message) {
+
+}
 
 
-};
 
+
+
+// WebSocket
 socket.on('push-message', (data) => {
   const parcelId = data.parcelId;
   const message = data.message;
