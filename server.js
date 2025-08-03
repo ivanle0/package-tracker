@@ -41,8 +41,23 @@ app.post('/parcel', (req, res) => {
   res.status(201).json(parcel);
 });
 
-// PATCH Endpoint to update parcel status
 
+// PATCH Endpoint to update parcel status
+app.patch('/parcel/:id/status', (req, res) => {
+  const id = parseInt(req.params.id);
+  const status = req.body.status;
+
+  const parcel = parcels.find(p => p.id === id);
+  if (!parcel) {
+    return res.status(404).json({ error: 'Parcel not found' });
+  }
+
+  parcel.status = status;
+  parcel.history.push({ status, timestamp: new Date() });
+
+  io.emit('push-message', `Parcel ID ${parcel.id} for ${parcel.recipient} updated to ${status}`);
+  res.json(parcel);
+});
 
 
 
