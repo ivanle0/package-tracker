@@ -1,5 +1,4 @@
 // Package Tracker project using Node.js, Express, Socket.io
-
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
@@ -14,6 +13,7 @@ const io = socketIo(server);
 
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
+
 
 // For now just going to store parcels in array
 let parcels = [];
@@ -30,14 +30,20 @@ app.post('/parcel', (req, res) => {
     id: parcelId, 
     recipient: recipient,
     destination: destination,
-    status: 'Created',
-    history: [{ status: 'Created', timestamp: new Date() }]
+    status: 'Ready for Shipping',
+    history: [{ status: 'Ready for Shipping', timestamp: new Date() }]
   };
 
   parcels.push(parcel);
   parcelId++;
 
-  io.emit('push-message', `Parcel ID ${parcel.id} for ${parcel.recipient} sent`);
+  io.emit('push-message', {
+    parcelId: parcel.id,
+    recipient: parcel.recipient,
+    status: parcel.status,
+    message: `Status updated to ${parcel.status}`
+  });
+  
   res.status(201).json(parcel);
 });
 
@@ -55,7 +61,13 @@ app.patch('/parcel/:id/status', (req, res) => {
   parcel.status = status;
   parcel.history.push({ status, timestamp: new Date() });
 
-  io.emit('push-message', `Parcel ID ${parcel.id} for ${parcel.recipient} updated to ${status}`);
+  io.emit('push-message', {
+    parcelId: parcel.id,
+    recipient: parcel.recipient,
+    status: parcel.status,
+    message: `Status updated to ${parcel.status}`
+  });
+
   res.json(parcel);
 });
 
