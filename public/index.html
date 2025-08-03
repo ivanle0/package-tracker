@@ -2,40 +2,42 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Parcel Notification System: Webhook to Real-Time App Update</title>
+  <title>Parcel Tracking System</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Parcel Notification System: Webhook to Real-Time App Update</h1>
+  <h1>Parcel Tracking System</h1>
   <ol class="sub">
-    <li>The system sends a Webhook (HTTP POST request) to the endpoint.</li> 
-    <li>The endpoint receives the Webhook and processes the payload.</li> 
-    <li>The endpoint pushes a real-time notification to the User App via WebSocket.</li>
+    <li>Simple Parcel Tracking System allows you to create parcels and track their status in real-time.</li>
+    <li>When a parcel is created, it will be displayed in the list below.</li>
+    <li>When a parcel's status changes, the recipient will receive a real-time update.</li>
   </ol>
 
   <div class="flow-container">
-    <div class="box server">
-      <h2>System</h2>
-      <select id="message-select">
-        <option value="READY_FOR_SHIPPING">READY_FOR_SHIPPING</option>
-        <option value="PICKED_UP_BY_COURIER">PICKED_UP_BY_COURIER</option>
-        <option value="ARRIVED_AT_HUB">ARRIVED_AT_HUB</option>
-        <option value="DELIVERED">DELIVERED</option>
-        <option value="DELIVERY_FAILED">DELIVERY_FAILED</option>
-      </select>
-      <button id="send-btn">Send Webhook</button>
+
+  <div class="left">
+    <div class="box">
+      <h2>Send Parcel</h2>
+      <form id="parcel-form">
+        <input type="text" id="recipient" placeholder="Recipient" required />
+        <input type="text" id="destination" placeholder="Destination" required />
+        <button type="submit">Send Parcel</button>
+      </form>
     </div>
 
-    <div class="box webhook">
-      <h2>Webhook Endpoint</h2>
-      <ul id="webhook-log"></ul>
-    </div>
-
-    <div class="box phone">
-      <h2>User Phone App</h2>
-      <ul id="push-log"></ul>
+    <div class="box">
+      <h2>Parcel Log</h2>
+      <div id="parcel-list"></div>
     </div>
   </div>
+
+  <div class="right">
+    <h2>Parcel Recipient UIs</h2>
+    <div id="recipient-grid" class="recipient-grid"></div>
+  </div>
+
+</div>
+
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="script.js"></script>
